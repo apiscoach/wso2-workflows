@@ -24,7 +24,14 @@ jobs:
     uses: apiscoach/wso2-workflows/.github/workflows/validate-properties-spectral.yml@main
     with:
       zip_path: ${{ inputs.changed_file }}
-    secrets: inherit  
+    secrets: inherit
+
+  validate-security:
+    name: Validate API Security with Spectral
+    uses: apiscoach/wso2-workflows/.github/workflows/validate-security-spectral.yml@main
+    with:
+      zip_path: ${{ inputs.changed_file }}
+    secrets: inherit
 
   validate-compliance:
     name: Validate API Compliance with apictl
@@ -36,7 +43,7 @@ jobs:
 
   release_apim_api:
     name: Release WSO2 APIM API
-    needs: [validate-properties, validate-compliance]
+    needs: [validate-properties, validate-security, validate-compliance]
     if: always()
     runs-on: self-hosted
 
@@ -50,7 +57,7 @@ jobs:
         run: echo "CURRENT_REPO_NAME=$(echo $GITHUB_REPOSITORY | cut -d '/' -f 2)" >> $GITHUB_ENV
 
       - name: Get APIM OAuth Token
-        if: needs.validate-properties.result == 'failure' || needs.validate-compliance.result == 'failure'
+        if: needs.validate-properties.result == 'failure' || needs.validate-security.result == 'failure' || needs.validate-compliance.result == 'failure'
         id: apim-auth
         uses: apiscoach/wso2-github-actions/get-apim-token@main
         with:
@@ -61,7 +68,7 @@ jobs:
           scopes: "apim:api_publish apim:api_manage apim:api_import_export"
 
       - name: Change API Lifecycle State to CHANGES_REQUESTED
-        if: needs.validate-properties.result == 'failure' || needs.validate-compliance.result == 'failure'
+        if: needs.validate-properties.result == 'failure' || needs.validate-security.result == 'failure' || needs.validate-compliance.result == 'failure'
         run: |
           echo "Validation failed, changing API lifecycle state to CHANGES_REQUESTED"
 

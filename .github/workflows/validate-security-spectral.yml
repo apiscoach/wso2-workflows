@@ -1,0 +1,68 @@
+name: Validate API Security with Spectral
+
+on:
+  workflow_call:
+    inputs:
+      zip_path:
+        description: 'Path to the ZIP file containing API security configuration'
+        required: true
+        type: string
+
+jobs:
+  validate-security-spectral:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout this repository
+        uses: actions/checkout@v4
+
+      - name: Checkout wso2-rulesets repository
+        uses: actions/checkout@v4
+        with:
+          repository: '${{ github.repository_owner }}/wso2-rulesets'
+          path: 'wso2-rulesets'
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract API file from ZIP
+        id: extract-api
+        run: |
+          echo "Extracting API file from ZIP"
+          echo "============================"
+
+          # Use the provided ZIP file path
+          ZIP_FILE="${{ inputs.zip_path }}"
+
+          if [[ ! -f "$ZIP_FILE" ]]; then
+            echo "Error: ZIP file not found at: $ZIP_FILE"
+            exit 1
+          fi
+
+          echo "Found ZIP file: $ZIP_FILE"
+
+          # Extract ZIP file to workspace
+          unzip -q "$ZIP_FILE" -d ./extracted-api
+
+          # Find api.yaml
+          API_YAML=$(find ./extracted-api -name "api.yaml" -type f)
+
+          if [[ -z "$API_YAML" ]]; then
+            echo "Error: api.yaml not found in ZIP file"
+            exit 1
+          fi
+
+          echo "Found api.yaml: $API_YAML"
+          echo "api_yaml_path=$API_YAML" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Spectral CLI
+        run: npm install -g @stoplight/spectral-cli
+
+      - name: Validate API security configuration with Spectral
+        run: |
+          spectral lint '${{ steps.extract-api.outputs.api_yaml_path }}' \
+            --ruleset 'wso2-rulesets/rules/security-validation.yaml' \
+            --format github-actions
