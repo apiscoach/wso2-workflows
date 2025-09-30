@@ -202,3 +202,20 @@ jobs:
             # gh pr edit $prNumber --title "$commitMsg" --body "$prBody"
             gh pr create --base ${{ env.DESTINATION_BRANCH }} --head $cdBranchName --title "$commitMsg" --body "$prBody"
           fi
+
+  cleanup:
+    name: Cleanup temporary files
+    runs-on: self-hosted
+    needs: [detectChangedApis, deployApisToApim]
+    if: always()
+    steps:
+      - name: Clean up temporary workspace
+        run: |
+          echo "Cleaning up temporary files..."
+          if [ -d "${{ env.WORK_DIR }}" ]; then
+            echo "Removing workspace directory: ${{ env.WORK_DIR }}"
+            rm -rf "${{ env.WORK_DIR }}"
+            echo "Cleanup completed"
+          else
+            echo "Workspace directory not found, nothing to clean"
+          fi
