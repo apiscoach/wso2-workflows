@@ -87,7 +87,7 @@ jobs:
           echo "Found API YAML file: $API_YAML_FILE"
 
           # Extract API ID from api.yaml
-          API_ID=$(yq eval '.data.id' "$API_YAML_FILE")
+          API_ID=$(yq '.data.id' "$API_YAML_FILE")
           echo "API ID: $API_ID"
 
           # Change lifecycle state via REST API
