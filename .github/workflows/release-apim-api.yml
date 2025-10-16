@@ -90,8 +90,43 @@ jobs:
           API_ID=$(yq '.data.id' "$API_YAML_FILE")
           echo "API ID: $API_ID"
 
+          # Validate API ID
+          if [ -z "$API_ID" ] || [ "$API_ID" = "null" ]; then
+            echo "Error: Could not extract valid API ID from api.yaml"
+            rm -rf "$TEMP_DIR"
+            exit 1
+          fi
+
+          # Debug: Check token availability (first 20 chars only)
+          TOKEN_CHECK="${{ steps.apim-auth.outputs.access_token }}"
+          if [ -z "$TOKEN_CHECK" ]; then
+            echo "Error: Access token is empty"
+            rm -rf "$TEMP_DIR"
+            exit 1
+          fi
+          echo "Access token available: ${TOKEN_CHECK:0:20}..."
+
+          # Get current lifecycle state and available actions
+          echo "Getting current API lifecycle state..."
+          API_INFO=$(curl -s -X GET \
+            -H "Authorization: Bearer ${{ steps.apim-auth.outputs.access_token }}" \
+            "${{ secrets.WSO2_APIM_BASE_URL }}/api/am/publisher/v4/apis/$API_ID")
+
+          CURRENT_STATE=$(echo "$API_INFO" | jq -r '.lifeCycleStatus')
+          echo "Current lifecycle state: $CURRENT_STATE"
+
+          LIFECYCLE_INFO=$(curl -s -X GET \
+            -H "Authorization: Bearer ${{ steps.apim-auth.outputs.access_token }}" \
+            "${{ secrets.WSO2_APIM_BASE_URL }}/api/am/publisher/v4/apis/$API_ID/lifecycle-state")
+
+          AVAILABLE_ACTIONS=$(echo "$LIFECYCLE_INFO" | jq -r '.availableTransitions[].event')
+          echo "Available lifecycle actions:"
+          echo "$AVAILABLE_ACTIONS"
+
           # Change lifecycle state via REST API
+          echo ""
           echo "Changing API lifecycle state to CHANGES_REQUESTED..."
+          echo "Request URL: ${{ secrets.WSO2_APIM_BASE_URL }}/api/am/publisher/v4/apis/change-lifecycle?apiId=$API_ID&action=Request%20Changes"
 
           LIFECYCLE_CHANGE_RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X POST \
             -H "Authorization: Bearer ${{ steps.apim-auth.outputs.access_token }}" \
