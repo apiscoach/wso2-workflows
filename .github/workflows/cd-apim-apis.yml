@@ -137,7 +137,17 @@ jobs:
           echo "Importing API $apiName-$apiVersion"
           #export PATH=$PATH:$APICTL_HOME
           #echo $APIM_ADMIN_PASSWORD | apictl login $APICTL_ENV -u $APIM_ADMIN_USERNAME --password-stdin -k
-          apictl import api -f ${{ env.WORK_DIR }}/$apiName-$apiVersion/*.zip -e $APICTL_ENV -k --update --rotate-revision --preserve-provider=false --params ${{ env.WORK_DIR }}/$apiName-$apiVersion/$artifactRepositoryName/apim/$apiVersion/Conf
+
+          # Check if the API version already exists
+          apiExists=$(apictl list apis -e $APICTL_ENV -k --format '{{.Name}}:{{.Version}}' | grep -E "^$apiName:$apiVersion$" || true)
+
+          if [ -z "$apiExists" ]; then
+            echo "API version $apiName-$apiVersion does not exist. Importing as new version..."
+            apictl import api -f ${{ env.WORK_DIR }}/$apiName-$apiVersion/*.zip -e $APICTL_ENV -k --preserve-provider=false --params ${{ env.WORK_DIR }}/$apiName-$apiVersion/$artifactRepositoryName/apim/$apiVersion/Conf
+          else
+            echo "API version $apiName-$apiVersion already exists. Updating existing version..."
+            apictl import api -f ${{ env.WORK_DIR }}/$apiName-$apiVersion/*.zip -e $APICTL_ENV -k --update --rotate-revision --preserve-provider=false --params ${{ env.WORK_DIR }}/$apiName-$apiVersion/$artifactRepositoryName/apim/$apiVersion/Conf
+          fi
 
           # Cleanup downloaded artifacts
           echo "Cleaning up downloaded artifacts"
