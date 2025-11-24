@@ -9,6 +9,10 @@ on:
         type: string
         description: API Version
         required: true
+      invoker:
+        type: string
+        description: User who triggered the promotion
+        required: false  
     secrets:
       ghBotUsername:
         required: true
@@ -27,6 +31,10 @@ jobs:
     name: commit new API version
     runs-on: self-hosted
     steps:
+      - name: Print Workflow Invoker
+        run: |
+          echo "Workflow invoked by: ${{ inputs.invoker }}"
+
       - name: Create unique working directory
         run: |
           mkdir -p ${{ env.WORK_DIR }}
