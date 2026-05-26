@@ -66,6 +66,7 @@ jobs:
           admin_password: ${{ secrets.WSO2_APIM_ADMIN_PASSWORD }}
           client_name: "lifecycle_management_client"
           scopes: "apim:api_publish apim:api_manage apim:api_import_export"
+          owner: "wso2admin"
 
       - name: Change API Lifecycle State to CHANGES_REQUESTED
         if: needs.validate-properties.result == 'failure' || needs.validate-security.result == 'failure' || needs.validate-compliance.result == 'failure'
