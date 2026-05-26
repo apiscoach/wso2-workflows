@@ -51,7 +51,7 @@ jobs:
       changedPolicyRepos: ${{steps.findChangedPolicyRepos.outputs.changedPolicyRepos}}
     steps:
       - name: Checkout Pipeline Repo	
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 5
 
@@ -76,7 +76,7 @@ jobs:
         changedPolicyRepo: ${{fromJson(needs.detectChangedPolicyRepos.outputs.changedPolicyRepos)}}
     steps:
       - name: Checkout Pipeline Repo	
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Fetch Policy Release Artifacts
         id: preparePolicyForDeployment

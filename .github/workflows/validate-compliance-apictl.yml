@@ -18,10 +18,10 @@ jobs:
 
     steps:
       - name: Checkout this repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       
       - name: Checkout wso2-rulesets repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: '${{ github.repository_owner }}/wso2-rulesets'
           path: 'wso2-rulesets'

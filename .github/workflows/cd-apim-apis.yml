@@ -57,7 +57,7 @@ jobs:
           echo "Working in: $(pwd)"
           
       - name: Checkout Pipeline Repo	
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 5
 
@@ -82,7 +82,7 @@ jobs:
         changedApi: ${{fromJson(needs.detectChangedApis.outputs.changedApis)}}
     steps:
       - name: Checkout Pipeline Repo	
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Checkout Artifact Repository
         id: checkoutArtifactRepo
