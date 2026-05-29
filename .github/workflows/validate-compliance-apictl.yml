@@ -46,7 +46,7 @@ jobs:
           # Check configured environments
           echo ""
           echo "Configured environments:"
-          apictl list envs
+          apictl get envs
 
       - name: Validate API compliance
         id: validate-compliance

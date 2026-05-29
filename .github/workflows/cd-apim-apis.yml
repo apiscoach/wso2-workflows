@@ -139,7 +139,8 @@ jobs:
           #echo $APIM_ADMIN_PASSWORD | apictl login $APICTL_ENV -u $APIM_ADMIN_USERNAME --password-stdin -k
 
           # Check if the API version already exists
-          apiExists=$(apictl list apis -e $APICTL_ENV -k --format '{{.Name}}:{{.Version}}' | grep -E "^$apiName:$apiVersion$" || true)
+          # apictl v4.6 limits by default to 25 - Fixing here arbitrarily to 100.
+          apiExists=$(apictl get apis -l 100 -e $APICTL_ENV -k --format '{{.Name}}:{{.Version}}' | grep -E "^$apiName:$apiVersion$" || true)
 
           if [ -z "$apiExists" ]; then
             echo "API version $apiName-$apiVersion does not exist. Importing as new version..."
