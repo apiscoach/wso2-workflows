@@ -196,7 +196,7 @@ jobs:
           "
 
           # Create the GitHub release
-          gh release create "$newVersion" --title "$CURRENT_REPO_NAME - $newVersion" --notes "$release_notes"
+          gh release create "$newVersion" --repo "$GITHUB_REPOSITORY" --title "$CURRENT_REPO_NAME - $newVersion" --notes "$release_notes"
 
           # Upload the artifact
           echo "Uploading "${{inputs.changed_file}}
