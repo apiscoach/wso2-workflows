@@ -118,6 +118,8 @@ jobs:
           apiName=$(echo "${{matrix.changedApi}}" | cut -d '/' -f 1)
           apiVersion=$(echo "${{matrix.changedApi}}" | cut -d '/' -f 2)
           apimVersion=$(echo "$apiVersion" | sed 's/^v//')
+          echo "Directory version (apiVersion): $apiVersion"
+          echo "APIM version (apimVersion):     $apimVersion"
 
           echo "${{matrix.changedApi}}_releaseVersion=$releaseVersion" >> $GITHUB_OUTPUT
           echo "${{matrix.changedApi}}_apiName=$apiName" >> $GITHUB_OUTPUT
