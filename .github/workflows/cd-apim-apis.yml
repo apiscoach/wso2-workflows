@@ -117,6 +117,7 @@ jobs:
 
           apiName=$(echo "${{matrix.changedApi}}" | cut -d '/' -f 1)
           apiVersion=$(echo "${{matrix.changedApi}}" | cut -d '/' -f 2)
+          apimVersion=$(echo "$apiVersion" | sed 's/^v//')
 
           echo "${{matrix.changedApi}}_releaseVersion=$releaseVersion" >> $GITHUB_OUTPUT
           echo "${{matrix.changedApi}}_apiName=$apiName" >> $GITHUB_OUTPUT
@@ -140,7 +141,7 @@ jobs:
 
           # Check if the API version already exists
           # apictl v4.6 limits by default to 25 - Fixing here arbitrarily to 100.
-          apiExists=$(apictl get apis -l 100 -e $APICTL_ENV -k --format '{{.Name}}:{{.Version}}' | grep -E "^$apiName:$apiVersion$" || true)
+          apiExists=$(apictl get apis -l 100 -e $APICTL_ENV -k --format '{{.Name}}:{{.Version}}' | grep -E "^$apiName:$apimVersion$" || true)
 
           if [ -z "$apiExists" ]; then
             echo "API version $apiName-$apiVersion does not exist. Importing as new version..."
