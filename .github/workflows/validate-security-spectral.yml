@@ -53,13 +53,14 @@ jobs:
           echo "Found api.yaml: $API_YAML"
           echo "api_yaml_path=$API_YAML" >> $GITHUB_OUTPUT
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
+      # Removing as spectral is installed on hosted runner
+      # - name: Setup Node.js
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: '18'
 
-      - name: Install Spectral CLI
-        run: npm install -g @stoplight/spectral-cli
+      # - name: Install Spectral CLI
+      #   run: npm install -g @stoplight/spectral-cli
 
       - name: Validate API security configuration with Spectral
         run: |
